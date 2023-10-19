@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <title>IEEE ShEx intro</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=792, user-scalable=no"/>
+    <meta http-equiv="x-ua-compatible" content="ie=edge"/>
+    <link rel="stylesheet" href="https://www.w3.org/2014/shower/shower/themes/ribbon/styles/screen.css"/>
+    <!-- <link rel="stylesheet" href="https://www.w3.org/2014/shower/shower/themes/w3c/styles/styles_w3c.css"/> -->
+    <style>
+      .slide { color: #eee; }
+      img.cover {  }
+      .slide.cover img.wdlogo { position: relative; left: 90%; bottom: 90%; width: 15%; }
+      img.right { float:left; font-size: 50%; width: 50%; margin-left: 6em; padding: .5ex 1em; background-color: #585; border: .5em solid #252; }
+      .slide pre { float:left; font-size: 50%; white-space: pre; margin-left: 3em; padding: .5ex 1em; background-color: #585; border: .5em solid #252; }
+      .not { text-decoration: line-through; color: red; }
+      .overview a { color: #99f; }
+      .import { color: #117; background-color: #1c1; }
+      .extend { color: #117; background-color: #c11; }
+    </style>
+    <style>
+a {
+    color: #005a9c;
+}
+
+.caption a {
+    text-shadow: 0 -1px 1px #005a9c;
+}
+
+.badge a {
+    background: #005a9c;
+}
+
+
+.slide {
+    color: #333;
+}
+
+
+.slide:after {
+    background: url(wikidata-logo.svg) no-repeat;
+    height: 40px;
+    padding-top: 0px;
+    background-color: #777;
+    width: 60px;
+}
+
+.slide h2 {
+    color: #333;
+}
+
+.slide pre mark.comment {
+    color: #c96;
+}
+
+
+.list .slide:target:before {
+    -webkit-box-shadow: 0 0 0 10px #005a9c,0 20px 50px rgba(42,43,45,.6);
+    box-shadow: 0 0 0 10px #005a9c,0 20px 50px rgba(42,43,45,.6);
+}
+
+.list .slide:target:after {
+    color: #fff;
+}
+
+
+.full .progress div {
+    border-bottom-color: #005a9c;
+}
+
+    </style>
+    <style>
+      .constant { color: #008b8b; }
+      .keyword { color: #a020f0; }
+      .type { color: #228b22; }
+      .function-name { color: #ffd7c0; }
+      .variable-name { color: #f0c29d; }
+    </style>
+  </head>
+
+  <body class="list">
+    <header class="caption">
+      <h1>IEEE ShEx intro</h1>
+    </header>
+
+    <section class="slide cover" id="Cover"><div>
+        <h2>IEEE ontology folks?</h2>
+	<h2 style="right:24px; color:white">Eric Prud&apos;hommeaux &lt;eric@uu3.org&gt</h2>
+	<h2 style="font-size:36px; color:white;">migrant ShEx worker</h2>
+    </div></section>
+
+    <section class="slide" id="overview">
+      <h2>Semantic Web</h2>
+      <ul>
+        <li>assertions (e.g. Turtle, Trig, RDF/XML...)</li>
+        <li>inference (RDFS, OWL)</li>
+        <li>query (SPARQL)</li>
+        <li>schema (ShEx and SHACL)</li>
+      </ul>
+    </section>
+
+    <section class="slide">
+      <h2>Assertions (data)</h2>
+      <ul>
+        <li>triples of (subject predicate object)</li>
+        <li>leverage Web Architecture for disambiguation<ul>
+            <li>a term is a URL. when you invent the term,<br/>
+              define it at that that URL</li>
+            <li>prevents different definitions for same term<br/>
+              !eliminates need for disambiguation!</li>
+        </ul></li>
+        <li>leverage social structures and search<ul>
+            <li>I want to say "protein X is a product of gene Y."</li>
+            <li>do a search before inventing a term</li>
+            <li>re-use Gene Ontology geneProductOf<br/>
+              !minimizes diffusion!</li>
+        </ul></li>
+      </ul>
+    </section>
+
+    <section class="slide">
+      <h2>Ontologies</h2>
+      <ul>
+        <li>RDFS defines groups of properties and classes<ul>
+            <li>if a cat has a child, it has type kitten</li>
+        </ul></li>
+        <li>OWL defines:<ul>
+            <li>constraints</li>
+            <li>type inference</li>
+            <li>open world</li>
+            <li>no unique name assumption (UNA)</li>
+        </ul></li>
+        <li>usually conceptual</li>
+      </ul>
+      <div>
+<pre style="position: absolute; top: 40%; right: 20%;">Person subClassOf
+    onProperty geneticParent 2
+    onProperty mitocondrialParent 0-1</pre>
+<pre style="position: absolute; top: 60%; right: 20%;">if you have X1 and X2, let's call you a X</pre>
+      </div>
+    </section>
+
+    <section class="slide">
+      <h2>Web Protocols / Data Structures</h2>
+      <ul>
+        <li>reuse terms from multiple ontologies</li>
+        <li>queried with closed world and UNA</li>
+      </ul>
+    </section>
+
+    <section class="slide">
+      <h2>Schemas</h2>
+      <ul>
+        <li>reflect data usage (closed world, UNA)</li>
+        <li>validation<ul>
+            <li>description<ul>
+                <li>consensus detection</li>
+        </ul></li></ul></li>            
+        <li>usually record-based</li>
+      </ul>
+    </section>
+
+    <section class="slide">
+      <h2>ShEx</h2>
+      <ul>
+        <li>expressive ("regular" language)</li>
+        <li>cardinalities</li>
+        <li>groups</li>
+        <li>boolean combinations</li>
+        <li>repeated properties</li>
+        <li>extensible without modification</li>
+      </ul>
+      <pre style="position: absolute; top: 20%; right: 20%;">(:givenName . ; :familyName .) | :name</pre>
+      <pre style="position: absolute; top: 30%; right: 20%;">`(&lt;Person&gt; AND NOT &lt;Customer&gt;) OR &lt;Manager&gt;`</pre>
+      <pre style="position: absolute; top: 40%; right: 20%;">:component { :code ["systolic"]; :value xsd:decimal }
+:component { :code ["diastolic"]; :value xsd:decimal }</pre>
+    </section>
+
+    <section class="slide">
+      <h2>Links</h2>
+      <ul>
+        <li><a href="https://shex.io/shex-semantics/">W3C CG spec</a></li>
+        <li><a href="https://shex.io/shex-primer/">Primer</a></li>
+        <li><a href="http://shex.io/primer-next/#reuse">Next Primer</a></li>
+        <li>Tests<ul>
+            <li><a href="https://github.com/shexSpec/shexTest/tree/main/schemas">Syntax</a>
+            <li><a href="https://github.com/shexSpec/shexTest/blob/main/validation/manifest.ttl#L1382">Validation</a></li>
+            <li><a href="https://github.com/shexSpec/shexTest/tree/main/negativeSyntax"></a></li>
+            <li><a href="https://github.com/shexSpec/shexTest/tree/main/negativeStructure">Negative Structure</a></li>
+        </ul></li>
+      </ul>
+    </section>
+
+    <div class="progress"><div></div></div>
+    <script src="https://www.w3.org/2014/shower/shower/shower.min.js"></script>
+    
+  </body>
+</html>

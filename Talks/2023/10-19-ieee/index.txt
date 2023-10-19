@@ -1,0 +1,64 @@
+- Semantic Web
+  - assertions (e.g. Turtle, Trig, RDF/XML...)
+  - inference (RDFS, OWL)
+  - query (SPARQL)
+  - schema (ShEx and SHACL)
+
+- Assertions
+  - triples of (subject predicate object)
+  - leverage Web Architecture for disambiguation
+    - a term is a URL. when you invent the term,
+      define it at that that URL
+    - prevents different definitions for same term
+      !eliminates need for disambiguation!
+  - leverage social structures and search
+    - I want to say "protein X is a product of gene Y."
+    - do a search before inventing a term
+    - re-use Gene Ontology geneProductOf
+      !minimizes diffusion!
+
+- Ontologies
+  - RDFS defines groups of properties and classes
+    - if a cat has a child, it has type kitten
+  - OWL defines:
+    - constraints
+      Person subClassOf
+        onProperty geneticParent 2
+        onProperty mitocondrialParent 0-1
+    - type inference
+      if you have X1 and X2, let's call you a X
+    - open world
+    - no unique name assumption (UNA)
+  - usually conceptual
+
+- Web Protocols / Data Structures
+  - reuse terms from multiple ontologies
+  - queried with closed world and UNA
+
+- Schemas
+  - reflect data usage (closed world, UNA)
+  - validation
+    - description
+      - consensus detection
+  - usually record-based
+
+- ShEx
+  - expressive ("regular" language)
+  - cardinalities
+  - groups
+    `(:givenName . ; :familyName .) | :name`
+  - boolean combinations `(<Person> AND NOT <Customer>) OR <Manager>`
+  - repeated properties
+    `:component { :code ["systolic"]; :value xsd:decimal }
+     :component { :code ["diastolic"]; :value xsd:decimal }
+  - extensible without modification
+
+- Links
+  - W3C CG spec: https://shex.io/shex-semantics/
+  - Primer: http://shex.io/shex-primer/
+  - Next Primer: http://shex.io/primer-next/#reuse
+  - Tests:
+    - Schemas: https://github.com/shexSpec/shexTest/tree/main/schemas
+    - Validation: https://github.com/shexSpec/shexTest/blob/main/validation/manifest.ttl#L1382
+    - Negative Syntax: https://github.com/shexSpec/shexTest/tree/main/negativeSyntax
+    - Negative Structure: https://github.com/shexSpec/shexTest/tree/main/negativeStructure
