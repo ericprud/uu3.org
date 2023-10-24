@@ -1,0 +1,83 @@
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX dc11: <http://purl.org/dc/elements/1.1/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX wot: <http://xmlns.com/wot/0.1/>
+PREFIX ns0: <http://www.w3.org/2000/10/swap/pim/contact#>
+PREFIX ns1: <http://www.megginson.com/exp/ns/airports#>
+
+<http://uu3.org/People/Eric/ericP-foaf>
+  a foaf:Document ;
+  dc11:title "FOAF desc for ericP" ;
+  dc11:description "FOAF documnet conforming Norm Walsh's FOAF-HTML XSLT script" ;
+  rdfs:seeAlso foaf:, <http://www-106.ibm.com/developerworks/xml/library/x-foaf.html> ;
+  wot:assurance <http://uu3.org/People/Eric/ericP-foaf.ttl.sig> ;
+  wot:sigdate "$Date: 2012/08/31 05:42:11 $" .
+
+<http://uu3.org/People/Eric/ericP-foaf#ericP>
+  a foaf:Person ;
+  foaf:name "Eric Prud'hommeaux" ;
+  foaf:firstName "Eric" ;
+  foaf:surname "Prud'hommeaux" ;
+  foaf:nick "ericP" ;
+  foaf:mbox <mailto:eric@w3.org> ;
+  foaf:mbox_sha1sum "8f6dc4c8f018daf468e64188c028d4e94068cfd6" ;
+  foaf:depiction <http://farm1.static.flickr.com/211/506296378_bc5fac2c00.jpg?v=0>, <http://eric.van-der-vlist.com/albums/KT2002/acg.sized.jpg> ;
+  ns0:nearestAirport [
+    a <http://xmlns.com/wordnet/1.6/Airport> ;
+    ns1:icao "LFLC" ;
+    ns1:iata "CFE"
+  ] ;
+  foaf:holdsAccount [
+    a foaf:OnlineChatAccount ;
+    foaf:accountName "ericP" ;
+    foaf:accountServiceHomepage <http://www.freenode.net/irc_servers.shtml>
+  ] ;
+  foaf:page <http://www.google.com/search?q=%22Eric+Prud%27hommeaux%22>, <http://search.yahoo.com/search?p=%22Eric+Prud%27hommeaux%22&sm=Yahoo%21+Search&fr=FP-tab-web-t&toggle=1>, <http://www.altavista.com/web/results?itag=wrx&q=%22Eric+Prud%27hommeaux%22&kgs=0&kls=0> ;
+  foaf:dateOfBirth "08-11-1966" ;
+  foaf:pubkeyAddress <http://example.org/pubkeyAddr> ;
+  rdfs:seeAlso <http://uu3.org/People/Eric/ericP-foaf> ;
+  foaf:workplaceHomepage <http://www.w3.org/> ;
+  foaf:homepage <http://uu3.org/People/Eric/> ;
+  foaf:knows <http://norman.walsh.name/knows/who/dan-brickley>, [
+    a foaf:Person ;
+    foaf:name "Max Froumentin" ;
+    foaf:mbox <mailto:mf@w3.org>
+  ], [
+    a foaf:Person ;
+    foaf:name "Gerald Oskoboiny" ;
+    foaf:mbox <mailto:gerald@impressive.net> ;
+    foaf:homepage <http://www.impressive.net/People/Gerald/>
+  ] ;
+  foaf:interest <http://www.w3.org/TR/REC-xml>, <http://www.rdfweb.org/> ;
+  foaf:project <http://uu3.org/People/Eric/ericP-foaf#proj.perllib>, <http://uu3.org/People/Eric/ericP-foaf#proj.annotea> .
+
+<http://www.freenode.net/irc_servers.shtml> dc11:title "irc.freenode.net" .
+<http://norman.walsh.name/knows/who/dan-brickley>
+  a foaf:Person ;
+  foaf:birthday "01-09" ;
+  foaf:firstName "Dan" ;
+  foaf:mbox_sha1sum "362ce75324396f0aa2d3e5f1246f40bf3bb44401" ;
+  foaf:name "Dan Brickley" ;
+  foaf:page <http://danbri.org/foaf.rdf> ;
+  foaf:surname "Brickley" .
+
+<http://norman.walsh.name/knows/who/danbri>
+  a foaf:Person ;
+  foaf:name "Dan Brickley" ;
+  foaf:mbox <mailto:danbri@w3.org> ;
+  rdfs:seeAlso <http://rdfweb.org/people/danbri/rdfweb/danbri-foaf.rdf> .
+
+<http://eric.van-der-vlist.com/albums/KT2002/acg.sized.jpg>
+  dc11:description "Eric Prud'hommeaux" ;
+  foaf:thumbnail <http://eric.van-der-vlist.com/albums/KT2002/acg.sized.jpg> .
+
+<http://uu3.org/People/Eric/ericP-foaf#proj.perllib>
+  dc11:title "PerlLib" ;
+  dc11:description "Perl library for RDF and related functions" ;
+  dc11:identifier <http://www.w3.org/1999/02/26-modules/>, <http://www.w3.org/1999/02/26-modules/User/> .
+
+<http://uu3.org/People/Eric/ericP-foaf#proj.annotea>
+  dc11:title "Annotea" ;
+  dc11:description "Annotatios database based on PerlLib" ;
+  dc11:identifier <http://www.w3.org/2001/Annotea/> ;
+  rdfs:seeAlso <http://uu3.org/People/Eric/ericP-foaf.rdf#proj.perllib> .
