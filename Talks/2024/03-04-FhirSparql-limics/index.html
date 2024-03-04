@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>FhirSparql</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link rel="stylesheet" href="../../shower-v3.3.0/shower/themes/ribbon/styles/styles.css">
+    <style>
+        .shower {
+            --slide-ratio: calc(16 / 9);
+      }
+      .cut { color: #770000; text-decoration: line-through; }
+      .paste { color: #007700; }
+      .title { font-weight: bold; }
+      .slide pre.tight code { line-height: 1; }
+    </style>
+</head>
+<body class="shower list">
+
+    <header class="caption">
+        <h1>FhirSparql</h1>
+        <p>simple content management for the <span class="cut">masses</span><span class="paste">geeks</span></p>
+    </header>
+
+    <section class="slide" id="cover">
+        <h2>FhirSparql</h2>
+        <p>simple content management for the <span class="cut">masses</span><span class="paste">geeks</span></p>
+        <figure>
+            <img class="cover" src="../../shower-v3.3.0/pictures/cover.jpg" alt="Hands on the orange typewriter in a park">
+            <figcaption class="copyright right white">
+                <a href="https://fiftyfootshadows.net">© John Carey</a>
+            </figcaption>
+        </figure>
+        <style>
+            #cover h2 {
+                margin: 30px 0 0;
+                color: white;
+                text-align: center;
+                font-size: 70px;
+            }
+
+            #cover p {
+                margin: 10px 0 0;
+                text-align: center;
+                color: white;
+                font-style: italic;
+                font-size: 20px;
+            }
+
+            #cover p a {
+                color: white;
+            }
+        </style>
+    </section>
+
+    <section class="slide">
+        <h2>FhirSparql</h2>
+        <ol>
+            <li>FHIR RDF defines an RDF model for FHIR</li>
+            <li>SPARQL querie's RDF models</li>
+            <li>no imagination required!</li>
+        </ol>
+        <p class="note">Code to the specifications.</p>
+        <p class="note">Offer new capabilites.</p>
+    </section>
+
+    <section class="slide">
+      <h2>FHIR API</h2>
+      <p>what's available for FHIR apps?</p>
+      <p>FHIR defines:</p>
+      <ol>
+        <li>models for e.g. Observation, DiagnisticReport</li>
+        <li>FHIR path language used for definition</li>
+        <li>FHIR REST API for interactions</li>
+      </ol>
+      <p class="note">Apps do lots of GETs and PUTs at FHIR Resource level.</p>
+      <ol>
+        <li><code>Os = GET https://myserver.example/Observation?code=http://loinc…|72166-2&status=final</code></li>
+        <li>For each O in Os<ol>
+            <li>Ds = GET https://myserver.example/DiagnosticReport?based-on=O&status=modified</li>
+            <li>For each D in Ds<ol>
+                <li>S=D.subject</li>
+                <li>P = GET https://myserver.example/DiagnosticReport?based-on=S&status=modified</li>
+            </ol></li>
+        </ol></li>
+      </ol>
+      <p class="note">Verbose and procedural</p>
+    </section>
+
+    <section class="slide">
+      <h2>FHIR Orchestration</h2>
+      <ol>
+        <li>Treat FHIR RDF as giant graph.</li>
+        <li>Queries integrate Resources</li>
+        <li>no imagination required!</li>
+      </ol>
+    </section>
+
+    <section class="slide">
+      <code><pre class="tight">
+<code>SELECT ?obs ?patId WHERE {</code>
+<code>  # Obs</code>
+<code>  ?obs a fhir:Observation .</code>
+<code></code>
+<code>  # Status</code>
+<code>  ?obs fhir:status [ fhir:v "final" ] .</code>
+<code></code>
+<code>  #   code</code>
+<code>  ?obs fhir:code ?code .</code>
+<code>    ?code fhir:coding ?codeList .</code>
+<code>      ?codeList rdf:rest*/rdf:first ?codeElt .</code>
+<code>        ?codeElt fhir:code ?codeCode .</code>
+<code>          ?codeCode fhir:v "72166-2" .</code>
+<code>        ?codeElt fhir:system ?codingSystem .</code>
+<code>          ?codingSystem fhir:v "http://loinc.org"^^xsd:anyURI .</code>
+<code></code>
+<code>  # Procedure</code>
+<code>  ?proc a fhir:DiagnosticReport ;</code>
+<code></code>
+<code>  # Status</code>
+<code>  ?obs fhir:status [ fhir:v "modified" ] .</code>
+<code></code>
+<code>    #   based-on</code>
+<code>    fhir:supportingInfo [ fhir:reference ?obs ] .</code>
+<code></code>
+<code>    #   subject</code>
+<code>    fhir:subject [ fhir:reference ?subject ] .</code>
+<code></code>
+<code>  # Patient</code>
+<code>  ?subject a fhir:Patient .</code>
+<code></code>
+<code>  #   id</code>
+<code>  ?subject fhir:id ?patIdElt .</code>
+<code>    ?patIdElt fhir:v ?patId .</code>
+<code>}</code>
+      </pre></code>
+    </section>
+
+    <section class="slide">
+      <code><pre class="tight">
+<code>…</code>
+<code>    #   based-on</code>
+<code>    fhir:supportingInfo [ fhir:reference ?obs ] .</code>
+<code></code>
+<code>    #   subject</code>
+<code>    fhir:subject [ fhir:reference ?subject ] .</code>
+<code></code>
+<code>  # Patient</code>
+<code>  ?subject a fhir:Patient .</code>
+<code></code>
+<code>  #   id</code>
+<code>  ?subject fhir:id ?patIdElt .</code>
+<code>    ?patIdElt fhir:v ?patId .</code>
+<code>}</code>
+      </pre></code>
+    </section>
+
+    <section class="slide">
+      <h2>Additional semantics</h2>
+      <ul>
+        <li>query DiagnosticReport by code(s)</li>
+        <li>select conencted CarePlans</li>
+        <li>find concomitant Medications</li>
+      </ul>
+      <p class="note">Restrict on attributes not availabe in REST API</p>
+      <p class="note">Restrict on cross-resource attributes</p>
+    </section>
+
+    <section class="slide">
+      <h2>Tasks</h2>
+      <ul>
+        <li>Parse query to AST.</li>
+        <li>Convert to ArcTrees.</li>
+        <li>recognize patterns expressible in FHIR REST API</li>
+        <li>start with empty starting Result Set (1 row, no bindings)</li>
+        <li>For each ArcTree in ArcTrees:<ul>
+        <li><ul>
+            <li>For each solution S in Result Set<ul>
+                <li>populate graph with Result Set bindings (e.g. <code>?subject</code>)</li>
+                <li>execute query</li>
+                <li>create FHIR RDF graph</li>
+                <li>synthesize query SPARQL query from ArcTree</li>
+            </ul></li>
+        </ul></li>
+        <li>Result Set is final</li>
+      </ul>
+    </section>
+
+    <section class="slide">
+      <h2>Other tactics</h2>
+      <ul>
+        <li>JPA access</li>
+      </ul>
+    </section>
+
+    <footer class="badge">
+        <a href="https://github.com/shower/shower">Fork me on GitHub</a>
+    </footer>
+
+    <div class="progress"></div>
+
+    <script src="../../shower-v3.3.0/shower/shower.js"></script>
+    <!-- Copyright © 3000 Yours Truly, Famous Inc. -->
+
+</body>
+</html>
