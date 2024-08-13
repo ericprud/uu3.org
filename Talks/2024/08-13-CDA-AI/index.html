@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>CDS-AI</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link rel="stylesheet" href="../../shower-v3.3.0/shower/themes/ribbon/styles/styles.css">
+    <style>
+        .shower {
+            --slide-ratio: calc(16 / 9);
+      }
+      .cut { color: #770000; text-decoration: line-through; }
+      .paste { color: #007700; }
+      .title { font-weight: bold; }
+      .slide pre.tight code { line-height: 1; }
+
+      .lr { display: flex; }
+      .lr > *:nth-child(1) { min-width: fit-content }
+      div.lr { padding-left: 2em; }
+      div.lr > div { padding: 0; }
+
+      ul.terminfo { line-height: 180%; }
+      .info { border: medium solid #8a8adf; padding-left: 1em; }
+      .term { border: medium solid #ad9bad; padding-left: 1em; }
+
+      .slide pre.tight code { font-size: small; }
+    </style>
+</head>
+<body class="shower list">
+
+    <header class="caption">
+        <h1>CDS-AI</h1>
+        <p>Clinical Decision Support leveraging some AI components</p>
+    </header>
+
+    <section class="slide" id="cover">
+        <h2>CDS-AI</h2>
+        <p>Clinical Decision Support leveraging some AI components</p>
+        <figure>
+            <img class="cover" src="../../shower-v3.3.0/pictures/cover.jpg" alt="Hands on the orange typewriter in a park">
+            <figcaption class="copyright right white">
+                <a href="https://fiftyfootshadows.net">© John Carey</a>
+            </figcaption>
+        </figure>
+        <style>
+            #cover h2 {
+                margin: 30px 0 0;
+                color: white;
+                text-align: center;
+                font-size: 70px;
+            }
+
+            #cover p {
+                margin: 10px 0 0;
+                text-align: center;
+                color: white;
+                font-style: italic;
+                font-size: 20px;
+            }
+
+            #cover p a {
+                color: white;
+            }
+        </style>
+    </section>
+    
+    <section class="slide">
+      <h2>Overall Goals</h2>
+      <ol>
+        <li>Leverage LLMs trained on... </li>
+        <li>to enable CDS rules and outcome prediction.</li>
+      </ol>
+    </section>
+    
+    <section class="slide">
+      <h2>Leverage LLMs trained on...</h2>
+      <ol>
+        <li>Information model (FHIR) for structure</li>
+        <li>Terminology model (SNOMED-CT, LoINC) for tokens</li>
+        <li>human language (most models)</li>
+        <li>structured queries/rules (e.g. SPARQL)</li>
+      </ol>
+    </section>
+    
+    <section class="slide">
+      <h2>CDS rules</h2>
+      <ol>
+        <li>allow clinicians to compose CDS rules
+          <blockquote>
+            If patient's serum creatinine goes above 1.3 mg/dL for 2 hours, fire an alert
+          </blockquote>
+        </li>
+        <li>refine to minimize annoyance
+          <blockquote>
+            ... if &lt; 2 days post-op kidney transplant, fire if &gt; 1.5 mg/dL for 0 mins
+          </blockquote>
+        </li>
+        <li>extract from notes</li>
+        <li>anticipate outcomes</li>
+      </ol>
+    </section>
+
+    <section class="slide">
+      <h2>TermInfo Model</h2>
+      <p>For simplicity, clinical data is broken into three main sources:</p>
+      <ol>
+        <li>Information model: data framework
+          <div>
+          <p style="float:left; width: 30%;">
+            <a href="//build.fhir.org/">FHIR</a>,
+            <a href="//rhapsody.health/wp-content/uploads/2022/07/R-MIM_legend_logo.gif">C-CDA</a>,
+            <a href="//www.cdisc.org/standards/domain-information-module/bridg">BRIDG</a>,
+            <a href="///">Mimic III</a>, ...
+          </p>
+          <img style="float:left; width: 30%;" src="//www.researchgate.net/publication/331844542/figure/fig1/AS:737982864687107@1552960234766/Schematic-diagram-of-the-BRIDG-model-While-this-is-a-comprehensive-model-for-biomedical.png"/>
+          </div>
+        </li>
+        <li style="clear:both;">Terminology model: clinically-specific-codes</li>
+        <li>Free-text: shoved into or translated to Information Model</li>
+      </ol>
+      <p class="note">This division of labor leads to some overlap</p>
+    </section>
+
+    <section class="slide">
+      <h2 style="margin-top: -3ex; margin-bottom: 1ex;">FHIR Information Model</h2>
+      <img src="//w3.org/2016/Talks/1205-swat4ls-egp/Constellations-Obsservations.png" alt="simultaneous display of diagnosis-related resources" style="max-width:99%; max-height: 99%;"/>
+    </section>
+
+    <section class="slide" id="terminfo-info-term">
+      <h2 style="margin-top:-3ex;">TermInfo (Information Model + Terminology)</h2>
+      <div class="lr" style="font-size: smaller;">
+        <ul class="terminfo">
+          <li class="info">
+            information model<br/>(Concepts and Relationships)
+            <ul>
+	      <li>Observations</li>
+	      <li>AdverseEvents</li>
+	      <li>Substance Administrations</li>
+            </ul>
+            on patient Isabella Jones
+          </li>
+          <li class="term">
+            terminology model<br/>(Terms and Relationships)
+            <ul>
+	      <li>Pneumonia a Pulmonary Disease</li>
+	      <li>Serum Sodium a lab test</li>
+	      <li>Penicillin an antibiotic</li>
+            </ul>
+          </li>
+        </ul>
+        <img src="//w3.org/2022/Talks/0110-swat4ls-egp/terminfo-info-term.svg" style="padding-left: 2em; width:45%"/>
+      </div>
+    </section>
+
+    <section class="slide">
+      <h2>Clinical data example</h2>
+      <table>
+        <thead>
+          <tr><th></th><th></th></tr>
+        </thead>
+        <tbody>
+          <tr><td></td>				<td>(FHIR) Observation</td></tr>
+          <tr><td>Who: Bob</td>			<td>subject</td></tr>
+          <tr><td>What: serum creatinine</td>	<td>code</td></tr>
+          <tr><td>When: Tue AM</td>		<td>effectiveDateTime</td></tr>
+          <tr><td>How much: 1.5 mg/dL</td>	<td>valueQuantity</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="slide">
+      <h2>Human query example</h2>
+      <blockquote>
+        Give me @@
+      </blockquote>
+    </section>
+
+    <section class="slide">
+      <h2 style="margin-top: -3ex; margin-bottom: -1ex;">Structured query example</h2>
+      <code><pre class="tight">
+<code>SELECT ?obs ?patId WHERE {</code>
+<code>  # Obs</code>
+<code>  ?obs a fhir:Observation .</code>
+<code> </code>
+<code>  # Status</code>
+<code>  ?obs fhir:status [ fhir:v "final" ] .</code>
+<code> </code>
+<code>  #   code</code>
+<code>  ?obs fhir:code [</code>
+<code>    fhir:coding [</code>
+<code>      rdf:rest*/rdf:first [</code>
+<code>        fhir:code [ fhir:v "2160-0" ] ;</code>
+<code>        fhir:system [ fhir:v "http://loinc.org"^^xsd:anyURI ]</code>
+<code>  ] ] ]</code>
+<code> </code>
+<code>  # Procedure</code>
+<code>  ?proc a fhir:DiagnosticReport ;</code>
+<code> </code>
+<code>  # Status</code>
+<code>  ?obs fhir:status [ fhir:v "modified" ] ;</code>
+<code>    #   based-on</code>
+<code>    fhir:supportingInfo [ fhir:reference ?obs ] ;</code>
+<code>    #   subject</code>
+<code>    fhir:subject [ fhir:reference ?subject ] .</code>
+<code> </code>
+<code>  # Patient</code>
+<code>  ?subject a fhir:Patient .</code>
+<code> </code>
+<code>  #   id</code>
+<code>  ?subject fhir:id [ fhir:v ?patId ] .</code>
+<code>}</code>
+      </pre></code>
+    </section>
+
+    <section class="slide">
+      <h2>Tactics</h2>
+      <ol>
+        <li>Summarize schema (so it will fit in context window)</li>
+        <li>Add some interpretation rules (references between elements in schema</li>
+        <li>Add some conventions (lists of the form OneOrMore_X must be queried with <code>rdf:rest*/rdf:first</code></li>
+        <li>Human-language query</li>
+      </ol>
+    </section>
+
+    <section class="slide">
+      <h2>Questions</h2>
+      <ol>
+        <li>What can be done with real training (vs. prompt injection)?</li>
+        <li>Separately train models for Information model, Terminology model, human language, structure (queries, schema)?</li>
+        <li>Use sequentially or like transfer learning? (How's that even work?)</li>
+        <li>Other ideas?</li>
+      </ol>
+    </section>
+
+    <footer class="badge">
+        <a href="https://github.com/shower/shower">Fork me on GitHub</a>
+    </footer>
+
+    <div class="progress"></div>
+
+    <script src="../../shower-v3.3.0/shower/shower.js"></script>
+    <!-- Copyright © 3000 Yours Truly, Famous Inc. -->
+
+</body>
+</html>

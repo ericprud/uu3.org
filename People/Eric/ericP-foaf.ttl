@@ -19,8 +19,8 @@ PREFIX ns1: <http://www.megginson.com/exp/ns/airports#>
   foaf:firstName "Eric" ;
   foaf:surname "Prud'hommeaux" ;
   foaf:nick "ericP" ;
-  foaf:mbox <mailto:eric@w3.org> ;
-  foaf:mbox_sha1sum "8f6dc4c8f018daf468e64188c028d4e94068cfd6" ;
+  foaf:mbox <mailto:eric@uu3.org> ;
+  foaf:mbox_sha1sum "90fe896808665529efb5a2e0a62e481a75bf762c" ;
   foaf:depiction <http://farm1.static.flickr.com/211/506296378_bc5fac2c00.jpg?v=0>, <http://eric.van-der-vlist.com/albums/KT2002/acg.sized.jpg> ;
   ns0:nearestAirport [
     a <http://xmlns.com/wordnet/1.6/Airport> ;
@@ -36,7 +36,7 @@ PREFIX ns1: <http://www.megginson.com/exp/ns/airports#>
   foaf:dateOfBirth "08-11-1966" ;
   foaf:pubkeyAddress <http://example.org/pubkeyAddr> ;
   rdfs:seeAlso <http://uu3.org/People/Eric/ericP-foaf> ;
-  foaf:workplaceHomepage <http://www.w3.org/> ;
+  foaf:workplaceHomepage <http://janeirodigital.com/> ;
   foaf:homepage <http://uu3.org/People/Eric/> ;
   foaf:knows <http://norman.walsh.name/knows/who/dan-brickley>, [
     a foaf:Person ;
