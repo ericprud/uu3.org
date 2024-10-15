@@ -23,6 +23,10 @@
   * YouTube
     * [LA CLEF🔐 de l'IMPRO à la batterie pour des MILLIARDS de breaks !!](https://www.youtube.com/watch?v=-UrHDeOXNpA)
     * [Rapper's Delight - chicken](https://www.youtube.com/clip/Ugkx2PJsdnDdalpKRJJZxyvtt7N2Fqjnve8S)
+  * tmp
+    * [Cissy Strut](https://www.mikeslessons.com/groove/?TimeSig=4/4&Div=16&Title=Cissy%20Strut%20-%20A&Author=Zigaboo&Comments=ref%3A%20https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DCmhJemgiaRU%20&Tempo=90&Swing=25&Measures=1&H=|-xx-x--x-xx-x-x-|&S=|----O-------O-O-|&K=|o--o-o--oo-o-o--|&T1=|----------------|&T4=|----------------|&Stickings=|----------------|)
+    * [Léna exercise - triplets](https://www.mikeslessons.com/groove/?TimeSig=4/4&Div=48&Title=%20L%C3%A9na%20exercice&Author=Fred%20Mariani&Comments=triplets&Tempo=115&Measures=2&H=|x-----------------------------------x-----------|------------x-----------------------o-----------|&S=|----o---o---------------o-------------------o---|o-------o---------------o-----------------------|&K=|------------o---o-------------------------------|--------------------o---------------------------|&T1=|------------------------------------------------|------------------------------------------------|&T4=|--------------------o---------------------------|------------------------------------------------|&Stickings=|------------------------------------------------|------------------------------------------------|)
+    * [Léna exercise - sextolets](https://www.mikeslessons.com/groove/?TimeSig=4/4&Div=48&Title=%20L%C3%A9na%20exercice&Author=Fred%20Mariani&Comments=sextolets&Tempo=57&Measures=1&H=|x-----------------x-----------x-----------o-----|&S=|--o-o-----o-o---------o-o---o-------o-----------|&K=|------o-o-------------------------o-------------|&T1=|------------------------------------------------|&T4=|------------------------------------------------|&Stickings=|------------------------------------------------|)
 
 ## tunes
   * Soul & Funk
