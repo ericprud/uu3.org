@@ -1,0 +1,21 @@
+
+<!doctype html>
+<html>
+  <head>
+    <title>ericP's Bookmarkss</title>
+  </head>
+  <body>
+    <h1>ericP's Bookmarks</h1>
+    <div id="content"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script defer>
+      fetch("bookmarks.md")
+        .then(response => response.blob())
+        .then(blob => blob.text())
+        .then(markdown => {
+          document.getElementById("content").innerHTML = marked.parse(markdown);
+        });
+    </script>
+  </body>
+</html>
