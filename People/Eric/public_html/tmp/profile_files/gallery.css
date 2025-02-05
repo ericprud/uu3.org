@@ -1,0 +1,129 @@
+/***********************************/
+/**** Gallery custom ***************/
+/***********************************/
+
+.galerieheader {
+	font-size: 1.4rem;
+	white-space: normal;
+}
+
+.images-container {
+	margin-bottom: 2.4rem;
+}
+
+.images-container a {
+	display: none;
+}
+
+.images-container a:hover {
+	color: #999;
+}
+
+.images-container a:first-child {
+	display: inline;
+}
+
+.images-container .galerieheader {
+	font-size: 1rem;
+	padding-top: 6px;
+	color: #383838;		/*fast schwarz*/
+	text-indent: 3px;
+}
+
+.images-container:hover a .galerieheader {
+	color: #999 !important;
+	transition-delay: 0.15s;
+}
+
+.images-container img {
+	/* siehe media queries */
+}
+
+.images-container:hover a img {
+	opacity: .7 !important;
+	transition-delay: 0.15s;
+}
+
+.dimbox-btn-prev svg, .dimbox-btn-next svg {
+	width: 50px;
+	height: 50px;
+	font-weight: bold;
+}
+
+/****** DIMBOX Override      */
+
+.dimbox-container::before {
+  opacity: .85;
+}
+
+.dimbox-btn-prev {
+	left: 2%;
+}
+
+.dimbox-btn-next {
+	right: 2%;
+}
+
+
+/*****************************/
+/**** MEDIA QUERIES   ********/
+/*****************************/
+
+@media only screen {						/* sm, 2 Bilder */
+	
+	.images-container img {
+		max-width: 180px;
+		border-radius: 20px;
+	}
+}
+
+@media only screen and (min-width: 768px) {		/* md, 3 Bilder */
+
+	.images-container .galerieheader {
+		font-size: 0.9rem;
+	}
+	
+	.images-container img {
+		max-width: 200px;
+		border-radius: 20px;
+	}
+}
+
+@media only screen and (min-width: 992px) {		/* lg, 4 Bilder */
+
+	.images-container .galerieheader {
+		font-size: 1rem;
+	}
+	
+	.images-container img {
+		max-width: 200px;
+		border-radius: 20px;
+	}
+
+}
+
+@media only screen and (min-width: 1200px) {	/* xl, 6 Bilder */
+
+	.images-container .galerieheader {
+		font-size: 1rem;
+	}
+	
+	.images-container img {
+		max-width: 160px;
+		border-radius: 20px;
+	}
+
+}
+
+@media only screen and (min-width: 1400px) {	/* xxl, 6 Bilder */
+
+	.images-container .galerieheader {
+		font-size: 1rem;
+	}
+	
+	.images-container img {
+		max-width: 180px;
+		border-radius: 20px;
+	}
+
+}
