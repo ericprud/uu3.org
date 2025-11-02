@@ -1,0 +1,41 @@
+<html>
+  <head>
+    <title>BiDi URL checker</title>
+  </head>
+  <body>
+    <h1>BiDi URL checker</h1>
+    <ul>
+      <li>with username LtoR "<em>أكرم</em>" - <a href="?usernameأكرم=&domain=uu3.org">?usernameأكرم=&domain=uu3.org</a></li>
+      <li>with forced LtoR text "\U202E/gro.3uu//:ptth\U202D" - <a href="‮/gro.3uu//:ptth‭">‮/gro.3uu//:ptth‭</a></li>
+    </ul>
+    <h2>hex dump of above</h2>
+    <pre>
+00000000: 3c68 746d 6c3e 0a20 203c 6865 6164 3e0a  &lt;html&gt;.  &lt;head&gt;.
+00000010: 2020 2020 3c74 6974 6c65 3e42 6944 6920      &lt;title&gt;BiDi 
+00000020: 5552 4c20 6368 6563 6b65 723c 2f74 6974  URL checker&lt;/tit
+00000030: 6c65 3e0a 2020 3c2f 6865 6164 3e0a 2020  le&gt;.  &lt;/head&gt;.  
+00000040: 3c62 6f64 793e 0a20 2020 203c 6831 3e42  &lt;body&gt;.    &lt;h1&gt;B
+00000050: 6944 6920 5552 4c20 6368 6563 6b65 723c  iDi URL checker&lt;
+00000060: 2f68 313e 0a20 2020 203c 756c 3e0a 2020  /h1&gt;.    &lt;ul&gt;.  
+00000070: 2020 2020 3c6c 693e 7769 7468 2075 7365      &lt;li&gt;with use
+00000080: 726e 616d 6520 4c74 6f52 2022 3c65 6d3e  rname LtoR "&lt;em&gt;
+00000090: d8a3 d983 d8b1 d985 3c2f 656d 3e22 202d  ........&lt;/em&gt;" -
+000000a0: 203c 6120 6872 6566 3d22 3f75 7365 726e   &lt;a href="?usern
+000000b0: 616d 65d8 a3d9 83d8 b1d9 853d 2664 6f6d  ame........=&amp;dom
+000000c0: 6169 6e3d 7575 332e 6f72 6722 3e3f 7573  ain=uu3.org"&gt;?us
+000000d0: 6572 6e61 6d65 d8a3 d983 d8b1 d985 3d26  ername........=&amp;
+000000e0: 646f 6d61 696e 3d75 7533 2e6f 7267 3c2f  domain=uu3.org&lt;/
+000000f0: 613e 3c2f 6c69 3e0a 2020 2020 2020 3c6c  a&gt;&lt;/li&gt;.      &lt;l
+00000100: 693e 7769 7468 2066 6f72 6365 6420 4c74  i&gt;with forced Lt
+00000110: 6f52 2074 6578 7420 225c 5532 3032 452f  oR text "\U202E/
+00000120: 6772 6f2e 3375 752f 2f3a 7074 7468 5c55  gro.3uu//:ptth\U
+00000130: 3230 3244 2220 2d20 3c61 2068 7265 663d  202D" - &lt;a href=
+00000140: 22e2 80ae 2f67 726f 2e33 7575 2f2f 3a70  ".../gro.3uu//:p
+00000150: 7474 68e2 80ad 223e e280 ae2f 6772 6f2e  tth..."&gt;.../gro.
+00000160: 3375 752f 2f3a 7074 7468 e280 ad3c 2f61  3uu//:ptth...&lt;/a
+00000170: 3e3c 2f6c 693e 0a20 2020 203c 2f75 6c3e  &gt;&lt;/li&gt;.    &lt;/ul&gt;
+00000180: 0a20 203c 2f62 6f64 793e 0a3c 2f68 746d  .  &lt;/body&gt;.&lt;/htm
+00000190: 6c3e 0a                                  l&gt;.
+    </pre>
+  </body>
+</html>
