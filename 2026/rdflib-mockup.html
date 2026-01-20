@@ -1,0 +1,42 @@
+<html>
+  <head>
+    <title>rdflib mockup</title>
+    <style>
+      textarea { display: block; width: 80%; white-space: pre; margin: 4em; height: 30ex; border: thick solid black }
+      .good { border-color: green; }
+      .bad { border-color: red; }
+    </style>
+  </head>
+  <body>
+    <h1>rdflib mockup</h1>
+    <textarea id="src">
+stage_name = "Solution Preparation"
+stage_idx = 2
+stage_uri = URIRef("#TheStageUri")
+self.graph.add(stage_uri, RDF.type, V.Stage)
+// self.graph.add(stage_uri, RDFS.label, Literal(stage_name))
+self.graph.add(stage_uri, V.ordinal, Literal(stage_idx, {datatype: XSD.integer}))
+nest1 = BNode()
+self.graph.add(stage_uri, V.p1, nest1)
+nest2 = BNode()
+self.graph.add(nest1, V.p1, nest2)
+nest3 = BNode()
+self.graph.add(nest2, V.p1, nest3)
+self.graph.add(nest3, V.p2, Literal("v1.2.3"))
+self.graph.add(nest3, V.p3, Literal("123", {datatype: XSD.integer}))
+self.graph.add(nest2, V.p2, Literal("v1.2"))
+self.graph.add(nest2, V.p3, Literal("12", {datatype: XSD.integer}))
+self.graph.add(nest1, V.p2, Literal("v1"))
+self.graph.add(nest1, V.p3, Literal("1", {datatype: XSD.integer}))
+self.graph.add(stage_uri, V.p2, Literal("v"))
+self.graph.add(stage_uri, V.p3, Literal("0", {datatype: XSD.integer}))
+new_uri = URIRef("#NewUri")
+self.graph.add(new_uri, RDF.type, V.Stage)
+console.log("HERE", self.graph.triples)
+    </textarea>
+    <button id="nested">Nested</button>
+    <button id="skolem">Skolem</button>
+    <textarea id="target"></textarea>
+    <script src="rdflib-pretty.js"></script>
+  </body>
+</html>
