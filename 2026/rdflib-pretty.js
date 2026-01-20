@@ -7,6 +7,7 @@ const Good = 'good'
 const Bad = 'bad'
 
 function nested (evt) {
+  debugger
   const printer = evt.target.id === 'nested' ? new NestedPrinter() : new SkolemPrinter()
   const [className, text] = execute(Src.value, printer);
   Target.value = text;
