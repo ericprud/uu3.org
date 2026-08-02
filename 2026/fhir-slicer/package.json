@@ -1,0 +1,20 @@
+{
+  "name": "fhir-slicer",
+  "version": "0.0.1",
+  "description": "Compile FHIR profile slicing rules into ShEx shapes over RDF collections",
+  "main": "slicer.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "keywords": [
+    "FHIR",
+    "ShEx",
+    "RDF",
+    "slicing"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@shexjs/parser": "^1.0.0-alpha.28"
+  }
+}

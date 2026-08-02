@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FHIR Slicer — slicing rules → ShEx lists</title>
+<style>
+  :root {
+    --bg: #eef1f5;
+    --surface: #ffffff;
+    --ink: #1a2432;
+    --muted: #5b6b7d;
+    --line: #d7dee7;
+    --accent: #3d6fd6;
+    --code-bg: #141b25;
+    --code-line: #2a3646;
+    --code-ink: #c7d3e2;
+    --code-muted: #76879d;
+    --ok: #2c8a5e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f141b;
+      --surface: #161d27;
+      --ink: #e6ecf3;
+      --muted: #93a2b4;
+      --line: #2a3442;
+      --accent: #6fa8ff;
+      --ok: #6fd0a0;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f141b; --surface: #161d27; --ink: #e6ecf3; --muted: #93a2b4;
+    --line: #2a3442; --accent: #6fa8ff; --ok: #6fd0a0;
+  }
+  :root[data-theme="light"] {
+    --bg: #eef1f5; --surface: #ffffff; --ink: #1a2432; --muted: #5b6b7d;
+    --line: #d7dee7; --accent: #3d6fd6; --ok: #2c8a5e;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .serif { font-family: Charter, "Bitstream Charter", "Source Serif Pro", Georgia, serif; }
+  code, pre, textarea, .mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px 72px; }
+
+  header { padding: 52px 0 8px; }
+  .eyebrow {
+    font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 14px;
+  }
+  h1 {
+    font-family: Charter, "Bitstream Charter", "Source Serif Pro", Georgia, serif;
+    font-weight: 500; font-size: clamp(30px, 5vw, 46px);
+    line-height: 1.12; margin: 0 0 14px; max-width: 21em;
+  }
+  h1 .sys { color: #c94433; } h1 .dia { color: #3d6fd6; }
+  :root[data-theme="dark"] h1 .sys { color: #ff7a66; }
+  :root[data-theme="dark"] h1 .dia { color: #6fa8ff; }
+  @media (prefers-color-scheme: dark) { h1 .sys { color: #ff7a66; } h1 .dia { color: #6fa8ff; } }
+  .thesis { max-width: 46em; color: var(--muted); font-size: 16.5px; margin: 0 0 22px; }
+  .thesis b { color: var(--ink); font-weight: 600; }
+  #cells { display: block; margin: 6px 0 10px; max-width: 100%; }
+
+  section { margin-top: 34px; }
+  h2 {
+    font-family: Charter, "Bitstream Charter", "Source Serif Pro", Georgia, serif;
+    font-weight: 500; font-size: 24px; margin: 0 0 4px;
+  }
+  .sub { color: var(--muted); margin: 0 0 14px; max-width: 56em; }
+
+  .panel {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 12px; padding: 18px 20px;
+  }
+  .dark-panel {
+    background: var(--code-bg); border: 1px solid var(--code-line);
+    border-radius: 12px; color: var(--code-ink); position: relative;
+  }
+
+  textarea {
+    width: 100%; min-height: 250px; resize: vertical;
+    background: var(--code-bg); color: var(--code-ink);
+    border: 1px solid var(--code-line); border-radius: 12px;
+    padding: 14px 16px; font-size: 12.5px; line-height: 1.5; tab-size: 2;
+  }
+  textarea:focus, button:focus-visible, .node:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+  .controls { display: flex; gap: 10px; flex-wrap: wrap; margin: 0 0 12px; }
+  button {
+    font: 600 14px/1 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    border-radius: 9px; padding: 11px 16px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  :root[data-theme="dark"] button.primary { color: #0f141b; }
+  @media (prefers-color-scheme: dark) { button.primary { color: #0f141b; } }
+  button:hover { filter: brightness(1.06); }
+
+  .msg { border-radius: 10px; padding: 10px 14px; margin-top: 12px; font-size: 14px; }
+  .msg.error { background: rgba(201,68,51,.12); border: 1px solid rgba(201,68,51,.45); }
+  .msg.warn  { background: rgba(214,158,32,.12); border: 1px solid rgba(214,158,32,.45); }
+  .msg ul { margin: 4px 0 2px; padding-left: 20px; }
+  .hidden { display: none; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th { text-align: left; color: var(--muted); font-weight: 600; font-size: 12.5px;
+       letter-spacing: .04em; text-transform: uppercase; }
+  th, td { padding: 8px 14px 8px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  .dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%;
+         margin-right: 8px; vertical-align: 1px; }
+  .slicing-head { margin: 2px 0 10px; }
+  .slicing-head code { font-size: 14px; }
+  .pill {
+    display: inline-block; font-size: 12px; padding: 2px 9px; border-radius: 999px;
+    border: 1px solid var(--line); color: var(--muted); margin-left: 8px;
+  }
+  .disp { color: var(--muted); }
+
+  .diagram-scroll { overflow-x: auto; padding: 12px 8px; }
+  .node { cursor: pointer; }
+  .node:hover .node-box { filter: brightness(1.25); }
+
+  pre.shex {
+    margin: 0; padding: 18px 20px; overflow-x: auto;
+    font-size: 12.5px; line-height: 1.62; color: var(--code-ink);
+  }
+  .copy-btn {
+    position: absolute; top: 10px; right: 10px;
+    background: rgba(255,255,255,.08); border: 1px solid var(--code-line);
+    color: var(--code-ink); font-size: 12.5px; padding: 6px 12px;
+  }
+  .tok-kw   { color: #d6a5ff; }
+  .tok-prop { color: #8ec1ff; }
+  .tok-str  { color: #a8d9a2; }
+  .tok-ref  { color: #e3d9c2; }
+  .tok-iri  { color: #9aa9bd; }
+  .tok-com  { color: #76879d; font-style: italic; }
+  .flash { animation: flash 1.6s ease-out 1; }
+  @keyframes flash { 0%, 40% { background: rgba(111,168,255,.28); } 100% { background: transparent; } }
+  @media (prefers-reduced-motion: reduce) { .flash { animation: none; } }
+
+  pre.ttl {
+    margin: 12px 0 0; padding: 16px 18px; overflow-x: auto; border-radius: 12px;
+    background: var(--code-bg); border: 1px solid var(--code-line);
+    color: var(--code-ink); font-size: 12.5px; line-height: 1.6;
+  }
+  .note { font-size: 14px; color: var(--muted); max-width: 60em; }
+  .note code { font-size: 12.5px; }
+  footer { margin-top: 56px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 16px; }
+  footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="eyebrow mono">fhir-slicer · FHIR profiles → ShEx over RDF collections</p>
+  <h1>One <span class="sys">systolic</span>, one <span class="dia">diastolic</span>, anything else.</h1>
+  <p class="thesis">A FHIR profile <b>slices</b> a repeating element — “<code>Observation.component</code>
+  must contain one systolic component and one diastolic component, others welcome.”
+  In FHIR RDF that element is a <b>first/rest collection</b>, so the constraint becomes a walk down the list:
+  a small state machine, one ShEx shape per state. Paste a StructureDefinition below, or load the
+  blood-pressure example.</p>
+  <svg id="cells" width="560" height="74" viewBox="0 0 560 74" role="img"
+       aria-label="An RDF list of three cons cells: a systolic component, a diastolic component, then anything, ending in rdf:nil"></svg>
+</header>
+
+<section>
+  <h2>Profile in</h2>
+  <p class="sub">A <code>StructureDefinition</code> differential with <code>slicing</code> on a repeating
+  element, <code>pattern</code>-type discriminators, and per-slice cardinalities.</p>
+  <div class="controls">
+    <button id="btn-example" class="primary">Load the blood-pressure example</button>
+    <button id="btn-generate">Generate ShEx</button>
+  </div>
+  <textarea id="profile-json" spellcheck="false" aria-label="StructureDefinition JSON"
+    placeholder='{ "resourceType": "StructureDefinition", "differential": { "element": [ … ] } }'></textarea>
+  <div id="error" class="msg error hidden" role="alert"></div>
+  <div id="warnings" class="msg warn hidden"></div>
+</section>
+
+<section id="sec-slices" class="hidden">
+  <h2>What the profile says</h2>
+  <p class="sub">Each slice contributes a discriminator test and a cardinality; the slicing’s
+  <em>rules</em> say whether non-matching members are allowed at all.</p>
+  <div id="slicings-out"></div>
+</section>
+
+<section id="sec-machine" class="hidden">
+  <h2>The list as a state machine</h2>
+  <p class="sub">Each state remembers what the list still owes. Colored arrows consume a member matching
+  that slice’s discriminator; the gray loop consumes a member matching none (allowed because the slicing
+  is open). Green states may end in <code>rdf:nil</code>. Click a state to jump to its shape.</p>
+  <div id="diagram-out"></div>
+</section>
+
+<section id="sec-shex" class="hidden">
+  <h2>ShEx out</h2>
+  <p class="sub">One shape per state; each <code>fhir:rest</code> points at the successor state’s shape.
+  <code>[rdf:nil] OR …</code> marks the accepting states.</p>
+  <div class="dark-panel">
+    <button id="btn-copy" class="copy-btn" aria-label="Copy generated ShEx">Copy</button>
+    <pre class="shex"><code id="shex-out"></code></pre>
+  </div>
+</section>
+
+<section id="sec-notes" class="hidden">
+  <h2>Reading the shapes</h2>
+  <p class="note">Each list shape answers one question: <em>given what the list has produced so far, what
+  may come next?</em> Its alternatives (<code>|</code>) enumerate the permissible heads — one per slice
+  that may still occur, plus, for open slicing, a catch-all whose <code>fhir:first</code> matches
+  <em>no</em> discriminator and whose <code>fhir:rest</code> stays in the same state.</p>
+  <p class="note">The <code>&lt;#LI_…&gt;</code> shapes test <em>only</em> the discriminator — that is
+  what makes the <code>NOT</code> alternatives well-defined. A complete translation would conjoin the
+  rest of each slice’s constraints onto the positive alternatives, e.g.
+  <code>fhir:first @&lt;#LI_SystolicBP&gt; AND @&lt;#SystolicBP_content&gt;</code>, while the
+  <code>NOT</code>s keep using the discriminator shape alone.</p>
+  <p class="note">The same machinery reappears one level down: a <code>patternCodeableConcept</code>
+  discriminator means “the <code>fhir:coding</code> list <em>includes</em> this Coding” — a one-slice
+  slicing with min&nbsp;1, max&nbsp;*. Its satisfied state is just “any well-formed list,” shared as
+  <code>&lt;#AnyList&gt;</code>.</p>
+  <p class="note">An instance the blood-pressure shapes accept (Turtle’s <code>( … )</code> is sugar for
+  the <code>rdf:first</code>/<code>rdf:rest</code> chain the shapes actually walk):</p>
+  <pre class="ttl">&lt;#obs&gt; a fhir:Observation ;
+  fhir:code [ fhir:coding ( [ fhir:system [ fhir:v "http://loinc.org"^^xsd:anyURI ] ;
+                              fhir:code   [ fhir:v "85354-9" ] ] ) ] ;
+  fhir:component (
+    [ fhir:code  [ fhir:coding ( [ fhir:system [ fhir:v "http://loinc.org"^^xsd:anyURI ] ;
+                                   fhir:code   [ fhir:v "8480-6" ] ] ) ] ;
+      fhir:value [ a fhir:Quantity ; fhir:value [ fhir:v 107.0 ] ] ]      # systolic
+    [ fhir:code  [ fhir:coding ( [ fhir:system [ fhir:v "http://loinc.org"^^xsd:anyURI ] ;
+                                   fhir:code   [ fhir:v "8462-4" ] ] ) ] ;
+      fhir:value [ a fhir:Quantity ; fhir:value [ fhir:v 60.0 ] ] ]       # diastolic
+  ) .</pre>
+  <p class="note" style="margin-top:14px"><strong>Simplifications:</strong> only the first discriminator
+  of a slicing is used; discriminators are assumed mutually exclusive (a head matching two slices would
+  need product states); <code>ordered</code> is ignored and <code>openAtEnd</code> is treated as
+  <code>open</code>; slice constraints beyond the discriminator are not emitted.</p>
+</section>
+
+<footer>
+  fhir-slicer — compiling FHIR slicing rules into ShEx shapes over RDF collections.
+  Example simplified from the HL7 <a href="http://hl7.org/fhir/StructureDefinition/bp">blood pressure profile</a>.
+</footer>
+
+</div>
+
+<script src="slicer.js"></script>
+<script>
+(function () {
+  'use strict';
+  const $ = s => document.querySelector(s);
+
+  // slice palette tuned for the dark instrument panels: arterial red, venous
+  // blue, then neutrals for further slices
+  const SLICE_COLORS = ['#ff7a66', '#6fa8ff', '#ffc94d', '#7ed6a7', '#d6a5ff', '#ff9ad5'];
+  const GRAY = '#76879d', GREEN = '#7ed6a7';
+  const sliceColor = i => SLICE_COLORS[i % SLICE_COLORS.length];
+
+  const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  let currentText = '';
+
+  // ---------------------------------------------------------- header motif
+  function drawHeaderCells() {
+    const cells = [
+      { color: SLICE_COLORS[0], label: 'loinc:8480-6' },
+      { color: SLICE_COLORS[1], label: 'loinc:8462-4' },
+      { color: GRAY, label: 'anything' },
+    ];
+    let s = '';
+    const y = 14, w = 118, h = 34, gap = 40;
+    cells.forEach((c, i) => {
+      const x = 8 + i * (w + gap);
+      s += `<g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8"
+              fill="none" stroke="${c.color}" stroke-width="1.5"/>
+            <line x1="${x + w - 26}" y1="${y}" x2="${x + w - 26}" y2="${y + h}" stroke="${c.color}" stroke-width="1.5"/>
+            <circle cx="${x + w - 13}" cy="${y + h / 2}" r="3" fill="${c.color}"/>
+            <text x="${x + (w - 26) / 2}" y="${y + h / 2 + 4}" text-anchor="middle"
+              font-family="ui-monospace,Menlo,monospace" font-size="11" fill="${c.color}">${c.label}</text>
+            <path d="M ${x + w - 13} ${y + h / 2} H ${x + w + gap - 6}" stroke="${c.color}" stroke-width="1.5" fill="none"/>
+            <path d="M ${x + w + gap - 6} ${y + h / 2} l -6 -4 v 8 z" fill="${c.color}"/>
+            <text x="${x + w + gap / 2 - 3}" y="${y - 3}" text-anchor="middle"
+              font-family="ui-monospace,Menlo,monospace" font-size="9" fill="${GRAY}">rdf:rest</text></g>`;
+    });
+    const xe = 8 + 3 * (w + gap);
+    s += `<text x="${xe}" y="${y + h / 2 + 4}" font-family="ui-monospace,Menlo,monospace"
+            font-size="11" fill="${GREEN}">rdf:nil</text>`;
+    $('#cells').innerHTML = s;
+  }
+
+  // ------------------------------------------------------------ highlighter
+  function colorizeName(escText, colorEntries) {
+    const hits = [];
+    for (const { token, color } of colorEntries) {
+      let idx = 0;
+      while ((idx = escText.indexOf(token, idx)) !== -1) {
+        hits.push({ start: idx, end: idx + token.length, color });
+        idx += token.length;
+      }
+    }
+    hits.sort((a, b) => a.start - b.start || b.end - a.end);
+    let out = '', pos = 0;
+    for (const h of hits) {
+      if (h.start < pos) continue;
+      out += escText.slice(pos, h.start) +
+        `<span style="color:${h.color}">` + escText.slice(h.start, h.end) + '</span>';
+      pos = h.end;
+    }
+    return out + escText.slice(pos);
+  }
+
+  function highlightShEx(text, colorEntries) {
+    const re = /(<#[^>\n]*>)|(<[^>\n]*>)|("(?:[^"\\]|\\.)*"(?:\^\^[A-Za-z_][\w.-]*:[\w.-]+)?)|(#[^\n]*)|\b(PREFIX|start|NOT|AND|OR|CLOSED)\b|([A-Za-z_][\w.-]*:[\w.-]*)/g;
+    let out = '', last = 0, m;
+    while ((m = re.exec(text)) !== null) {
+      out += esc(text.slice(last, m.index));
+      const lineStart = text.lastIndexOf('\n', m.index) + 1;
+      const atLineStart = text.slice(lineStart, m.index).trim() === '';
+      if (m[1]) {
+        const inner = colorizeName(esc(m[1]), colorEntries);
+        const name = m[1].slice(2, -1);
+        out += atLineStart
+          ? `<span class="tok-ref" id="decl-${cssId(name)}">${inner}</span>`
+          : `<span class="tok-ref">${inner}</span>`;
+      } else if (m[2]) out += `<span class="tok-iri">${esc(m[2])}</span>`;
+      else if (m[3]) out += `<span class="tok-str">${esc(m[3])}</span>`;
+      else if (m[4]) out += `<span class="tok-com">${esc(m[4])}</span>`;
+      else if (m[5]) out += `<span class="tok-kw">${m[5]}</span>`;
+      else out += `<span class="tok-prop">${esc(m[6])}</span>`;
+      last = m.index + m[0].length;
+    }
+    return out + esc(text.slice(last));
+  }
+
+  const cssId = s => s.replace(/[^A-Za-z0-9_-]/g, '_');
+
+  // --------------------------------------------------------------- diagram
+  function drawMachine(m) {
+    const W = 258, H = 64, CG = 118, RG = 46, PADX = 14, PADY = 56;
+    const byLevel = {};
+    m.states.forEach(st => {
+      const l = st.counts.reduce((a, b) => a + b, 0);
+      (byLevel[l] = byLevel[l] || []).push(st);
+    });
+    const levels = Object.keys(byLevel).map(Number).sort((a, b) => a - b);
+    const maxRows = Math.max(...levels.map(l => byLevel[l].length));
+    const height = PADY + maxRows * H + (maxRows - 1) * RG + 18;
+    const width = PADX * 2 + 46 + levels.length * W + (levels.length - 1) * CG;
+
+    const pos = {};
+    levels.forEach((l, li) => {
+      const col = byLevel[l];
+      const colH = col.length * H + (col.length - 1) * RG;
+      const y0 = PADY + (maxRows * H + (maxRows - 1) * RG - colH) / 2;
+      col.forEach((st, ri) => {
+        pos[st.key] = { x: PADX + 46 + li * (W + CG), y: y0 + ri * (H + RG), st };
+      });
+    });
+
+    let defs = '';
+    const markers = m.slices.map((_, i) => sliceColor(i)).concat([GRAY]);
+    markers.forEach((c, i) => {
+      defs += `<marker id="arr${i}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7"
+                 markerHeight="7" orient="auto-start-reverse">
+                 <path d="M0,0 L10,5 L0,10 z" fill="${c}"/></marker>`;
+    });
+
+    let edges = '', nodes = '';
+    const loopCount = {};
+    for (const st of m.states) {
+      const p = pos[st.key];
+      for (const a of st.alts) {
+        const color = a.slice === null ? GRAY : sliceColor(a.slice);
+        const mk = a.slice === null ? m.slices.length : a.slice;
+        const label = a.slice === null ? 'other' : '+' + m.slices[a.slice].name;
+        if (a.next === st.key) {
+          const n = loopCount[st.key] = (loopCount[st.key] || 0) + 1;
+          const lift = 26 + (n - 1) * 20;
+          const x1 = p.x + W * 0.62, x2 = p.x + W * 0.38;
+          edges += `<path d="M ${x1} ${p.y} C ${x1 + 26} ${p.y - lift}, ${x2 - 26} ${p.y - lift}, ${x2} ${p.y}"
+                      fill="none" stroke="${color}" stroke-width="1.5"
+                      ${a.slice === null ? 'stroke-dasharray="4 3"' : ''} marker-end="url(#arr${mk})"/>
+                    <text x="${p.x + W / 2}" y="${p.y - lift + 6}" text-anchor="middle"
+                      font-size="10.5" font-family="ui-monospace,Menlo,monospace" fill="${color}">${esc(label)}</text>`;
+        } else {
+          const q = pos[a.next];
+          const sx = p.x + W, sy = p.y + H / 2, tx = q.x, ty = q.y + H / 2;
+          edges += `<path d="M ${sx} ${sy} C ${sx + CG * 0.55} ${sy}, ${tx - CG * 0.55} ${ty}, ${tx} ${ty}"
+                      fill="none" stroke="${color}" stroke-width="1.7" marker-end="url(#arr${mk})"/>
+                    <text x="${(sx + tx) / 2}" y="${(sy + ty) / 2 - 7}" text-anchor="middle"
+                      font-size="10.5" font-family="ui-monospace,Menlo,monospace" fill="${color}">${esc(label)}</text>`;
+        }
+      }
+    }
+    for (const st of m.states) {
+      const p = pos[st.key];
+      const stroke = st.nilOk ? GREEN : '#425062';
+      const ring = st.nilOk
+        ? `<rect x="${p.x + 3}" y="${p.y + 3}" width="${W - 6}" height="${H - 6}" rx="8"
+             fill="none" stroke="${GREEN}" stroke-width="1"/>` : '';
+      const label = st.nilOk && st.label.indexOf('may end') === -1 ? st.label + ' — may end' : st.label;
+      nodes += `<g class="node" tabindex="0" role="button" data-decl="${cssId(st.name)}"
+                  aria-label="state ${esc(st.label)}">
+        <rect class="node-box" x="${p.x}" y="${p.y}" width="${W}" height="${H}" rx="10"
+          fill="#1b2432" stroke="${stroke}" stroke-width="1.6"/>${ring}
+        <text x="${p.x + W / 2}" y="${p.y + 27}" text-anchor="middle" font-size="10"
+          font-family="ui-monospace,Menlo,monospace" fill="#e3d9c2">${esc('<#' + st.name + '>')}</text>
+        <text x="${p.x + W / 2}" y="${p.y + 46}" text-anchor="middle" font-size="12"
+          fill="${st.nilOk ? GREEN : '#c7d3e2'}">${esc(label)}</text></g>`;
+    }
+    const start = pos[m.startKey];
+    const startArrow = `<path d="M ${start.x - 40} ${start.y + H / 2} H ${start.x - 4}"
+        stroke="#c7d3e2" stroke-width="1.7" fill="none" marker-end="url(#arr${m.slices.length})"/>
+      <text x="${start.x - 42} " y="${start.y + H / 2 - 8}" font-size="10.5"
+        font-family="ui-monospace,Menlo,monospace" fill="#c7d3e2">start</text>`;
+
+    return `<div class="dark-panel diagram-scroll"><svg width="${width}" height="${height}"
+        viewBox="0 0 ${width} ${height}" role="img"
+        aria-label="State machine for the ${esc(m.property)} list">
+        <defs>${defs}</defs>${edges}${startArrow}${nodes}</svg></div>`;
+  }
+
+  // ------------------------------------------------------------- rendering
+  function cardMax(max) { return max === Infinity || max == null ? '*' : max; }
+
+  function renderSlicings(result) {
+    let html = '';
+    for (const rc of result.parsed.rootConstraints) {
+      if (!rc.pattern) continue;
+      const c = rc.pattern.codings[0];
+      html += `<p class="note" style="margin:0 0 12px">Also constrained (not a slice):
+        <code>${esc(result.parsed.resource + '.' + rc.name)}</code> must include
+        <code>${esc((c.system || '') + '|' + (c.code || ''))}</code>
+        <span class="disp">${esc(c.display ? '— ' + c.display : '')}</span></p>`;
+    }
+    for (const m of result.machines) {
+      let rows = '';
+      m.slices.forEach((s, i) => {
+        const c = s.pattern.codings[0];
+        rows += `<tr>
+          <td><span class="dot" style="background:${sliceColor(i)}"></span><code>${esc(s.name)}</code></td>
+          <td class="mono">${s.min}..${cardMax(s.max)}</td>
+          <td><code>${esc((c.system || '') + '|' + (c.code || ''))}</code>
+              <div class="disp">${esc(c.display || '')}</div></td></tr>`;
+      });
+      html += `<div class="panel" style="margin-bottom:14px">
+        <p class="slicing-head"><code>${esc(m.path)}</code>
+          <span class="pill">rules: ${esc(m.rules)}</span>
+          <span class="pill">discriminator: ${esc(m.discriminator.type)} on <code>${esc(m.discriminator.path)}</code></span></p>
+        <table><thead><tr><th>Slice</th><th>Card.</th><th>Discriminating pattern</th></tr></thead>
+        <tbody>${rows}</tbody></table></div>`;
+    }
+    $('#slicings-out').innerHTML = html;
+  }
+
+  function colorEntriesFor(result) {
+    const entries = [];
+    for (const m of result.machines) {
+      m.slices.forEach((s, i) => {
+        entries.push({ token: s.name, color: sliceColor(i) });
+        s.pattern.codings.forEach(c => {
+          const label = labelOf(c);
+          if (label) entries.push({ token: label, color: sliceColor(i) });
+        });
+      });
+    }
+    return entries;
+  }
+  // recover the coding label the generator used, from the emitted text
+  function labelOf(coding) {
+    const code = (coding.code || '').replace(/[^A-Za-z0-9]+/g, '_');
+    const mm = currentText.match(new RegExp('Coding_([A-Za-z0-9_]*_' + code + ')\\b'));
+    return mm ? mm[1] : null;
+  }
+
+  function run() {
+    const raw = $('#profile-json').value.trim();
+    const sections = ['#sec-slices', '#sec-machine', '#sec-shex', '#sec-notes'];
+    $('#error').classList.add('hidden');
+    $('#warnings').classList.add('hidden');
+    if (!raw) { sections.forEach(s => $(s).classList.add('hidden')); return; }
+    let result;
+    try {
+      result = FhirSlicer.generate(JSON.parse(raw));
+    } catch (e) {
+      $('#error').textContent = e.message;
+      $('#error').classList.remove('hidden');
+      sections.forEach(s => $(s).classList.add('hidden'));
+      return;
+    }
+    currentText = result.text;
+    if (result.warnings.length) {
+      $('#warnings').innerHTML = '<strong>Notes</strong><ul>' +
+        result.warnings.map(w => '<li>' + esc(w) + '</li>').join('') + '</ul>';
+      $('#warnings').classList.remove('hidden');
+    }
+    renderSlicings(result);
+    $('#diagram-out').innerHTML = result.machines.map(drawMachine).join('');
+    $('#shex-out').innerHTML = highlightShEx(result.text, colorEntriesFor(result));
+    sections.forEach(s => $(s).classList.remove('hidden'));
+    $('#sec-machine').classList.toggle('hidden', !result.machines.length);
+  }
+
+  // ---------------------------------------------------------------- wiring
+  $('#btn-example').addEventListener('click', () => {
+    $('#profile-json').value = JSON.stringify(FhirSlicer.BP_EXAMPLE, null, 2);
+    run();
+    $('#sec-slices').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+  $('#btn-generate').addEventListener('click', run);
+  let timer;
+  $('#profile-json').addEventListener('input', () => {
+    clearTimeout(timer); timer = setTimeout(run, 500);
+  });
+  $('#btn-copy').addEventListener('click', () => {
+    navigator.clipboard.writeText(currentText).then(() => {
+      $('#btn-copy').textContent = 'Copied ✓';
+      setTimeout(() => { $('#btn-copy').textContent = 'Copy'; }, 1500);
+    });
+  });
+  document.addEventListener('click', e => {
+    const node = e.target.closest('.node');
+    if (!node) return;
+    const decl = document.getElementById('decl-' + node.dataset.decl);
+    if (!decl) return;
+    decl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    decl.classList.remove('flash'); void decl.offsetWidth; decl.classList.add('flash');
+  });
+  document.addEventListener('keydown', e => {
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.classList && e.target.classList.contains('node')) {
+      e.preventDefault(); e.target.click();
+    }
+  });
+
+  drawHeaderCells();
+  if (location.hash === '#example') {
+    $('#profile-json').value = JSON.stringify(FhirSlicer.BP_EXAMPLE, null, 2);
+    run();
+  }
+})();
+</script>
+</body>
+</html>
