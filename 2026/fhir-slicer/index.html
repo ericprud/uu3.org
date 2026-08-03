@@ -87,7 +87,7 @@
   }
 
   textarea {
-    width: 100%; min-height: 250px; resize: vertical;
+    width: 100%; min-height: 325px; resize: vertical;
     background: var(--code-bg); color: var(--code-ink);
     border: 1px solid var(--code-line); border-radius: 12px;
     padding: 14px 16px; font-size: 12.5px; line-height: 1.5; tab-size: 2;
@@ -95,7 +95,8 @@
   textarea:focus, button:focus-visible, .node:focus-visible {
     outline: 2px solid var(--accent); outline-offset: 2px;
   }
-  .controls { display: flex; gap: 10px; flex-wrap: wrap; margin: 0 0 12px; }
+  .controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 0 0 12px; }
+  .menu-label { color: var(--muted); font-size: 13px; letter-spacing: .06em; text-transform: uppercase; }
   button {
     font: 600 14px/1 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     border-radius: 9px; padding: 11px 16px; cursor: pointer;
@@ -179,13 +180,16 @@
 <section>
   <h2>Profile in</h2>
   <p class="sub">A <code>StructureDefinition</code> differential with <code>slicing</code> on a repeating
-  element, <code>pattern</code>-type discriminators, and per-slice cardinalities.</p>
-  <div class="controls">
-    <button id="btn-example" class="primary">Load the blood-pressure example</button>
-    <button id="btn-generate">Generate ShEx</button>
+  element, <code>pattern</code>-type discriminators, and per-slice cardinalities. Pick an example or
+  paste your own; the menu comes from the <code>manifestURL</code> query parameter.</p>
+  <div class="controls" id="examples-menu" aria-label="Examples">
+    <span class="menu-label">Examples</span>
   </div>
   <textarea id="profile-json" spellcheck="false" aria-label="StructureDefinition JSON"
     placeholder='{ "resourceType": "StructureDefinition", "differential": { "element": [ … ] } }'></textarea>
+  <div class="controls" style="margin: 12px 0 0">
+    <button id="btn-generate" class="primary">Generate ShEx</button>
+  </div>
   <div id="error" class="msg error hidden" role="alert"></div>
   <div id="warnings" class="msg warn hidden"></div>
 </section>
@@ -512,12 +516,83 @@
     $('#sec-machine').classList.toggle('hidden', !result.machines.length);
   }
 
-  // ---------------------------------------------------------------- wiring
-  $('#btn-example').addEventListener('click', () => {
-    $('#profile-json').value = JSON.stringify(FhirSlicer.BP_EXAMPLE, null, 2);
+  // -------------------------------------------------------- examples menu
+  // Ensure ?manifestURL=… is present (default: examples/manifest.yaml).
+  function ensureManifestParam() {
+    if (!/[?&]manifestURL=/.test(location.search)) {
+      const sep = location.search ? location.search + '&' : '?';
+      history.replaceState(null, '',
+        location.pathname + sep + 'manifestURL=examples/manifest.yaml' + location.hash);
+    }
+    return new URLSearchParams(location.search).get('manifestURL');
+  }
+
+  // Minimal YAML-subset parser for the manifest: list items ("- ") holding
+  // scalar key: value pairs; section headers and comments are skipped.
+  function parseManifest(yaml) {
+    const items = [];
+    let cur = null;
+    for (const raw of yaml.split('\n')) {
+      let line = raw.trim();
+      if (!line || line.startsWith('#')) continue;
+      if (line.startsWith('- ')) { cur = {}; items.push(cur); line = line.slice(2).trim(); }
+      const ci = line.indexOf(':');
+      if (ci === -1 || !cur) continue;
+      const val = line.slice(ci + 1).trim().replace(/^["']|["']$/g, '');
+      if (val) cur[line.slice(0, ci).trim()] = val;
+    }
+    return items.filter(it => it.name && it.profileURL);
+  }
+
+  function addExampleButton(label, title, onClick) {
+    const b = document.createElement('button');
+    b.textContent = label;
+    if (title) b.title = title;
+    b.addEventListener('click', onClick);
+    $('#examples-menu').appendChild(b);
+    return b;
+  }
+
+  function setProfile(text, scroll) {
+    $('#profile-json').value = text;
     run();
-    $('#sec-slices').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
+    if (scroll) $('#sec-slices').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  async function loadExample(url, scroll) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
+      setProfile(await res.text(), scroll);
+    } catch (e) {
+      $('#error').textContent = 'Could not load ' + url + ' — ' + e.message;
+      $('#error').classList.remove('hidden');
+    }
+  }
+
+  async function initExamples() {
+    const manifestURL = ensureManifestParam();
+    try {
+      const res = await fetch(manifestURL);
+      if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
+      const items = parseManifest(await res.text());
+      if (!items.length) throw new Error('manifest has no usable entries');
+      const base = new URL(manifestURL, location.href);
+      for (const it of items)
+        addExampleButton(it.name, it.description,
+          e => loadExample(new URL(it.profileURL, base), e.isTrusted));
+    } catch (e) {
+      // No manifest reachable (e.g. file://): fall back to the built-in example.
+      addExampleButton('systolic/diastolic (built-in)', null,
+        e => setProfile(JSON.stringify(FhirSlicer.BP_EXAMPLE, null, 2), e.isTrusted));
+    }
+    if (location.hash === '#example') {
+      const b = $('#examples-menu button');
+      if (b) b.click();
+    }
+  }
+
+  // ---------------------------------------------------------------- wiring
   $('#btn-generate').addEventListener('click', run);
   let timer;
   $('#profile-json').addEventListener('input', () => {
@@ -544,10 +619,7 @@
   });
 
   drawHeaderCells();
-  if (location.hash === '#example') {
-    $('#profile-json').value = JSON.stringify(FhirSlicer.BP_EXAMPLE, null, 2);
-    run();
-  }
+  initExamples();
 })();
 </script>
 </body>

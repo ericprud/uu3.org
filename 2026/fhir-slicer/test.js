@@ -44,6 +44,18 @@ assert(closed.get('1').nilOk);
 const open = buildMachine([{ name: 'A', min: 1, max: Infinity }], 'open');
 assert(open.get('1').universal);
 
+// Every example in the manifest parses and generates
+const fs = require('fs');
+const manifest = fs.readFileSync(__dirname + '/examples/manifest.yaml', 'utf8');
+const files = [...manifest.matchAll(/profileURL:\s*(\S+)/g)].map(m => m[1]);
+assert(files.length >= 2, 'manifest should list examples');
+for (const f of files) {
+  const sd = JSON.parse(fs.readFileSync(__dirname + '/examples/' + f, 'utf8'));
+  const r = generate(sd);
+  assert(r.machines.length >= 1, f + ' produced no list machine');
+  console.log('----', f + ':', r.machines[0].states.length, 'states, rules', r.machines[0].rules);
+}
+
 // Optional: parse the generated ShExC with a real parser if available
 try {
   const parser = require('@shexjs/parser').construct('http://example.org/');

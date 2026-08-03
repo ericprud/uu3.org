@@ -21,9 +21,11 @@ max \* — so the same machinery generates those shapes too.
 
 ## Use
 
-Open `index.html` in a browser (or append `#example` to auto-load the
-blood-pressure example). Paste a `StructureDefinition` differential; the page
-shows the extracted slices, the state machine, and the generated ShExC.
+Open `index.html` in a browser (or append `#example` to auto-load the first
+example). Paste a `StructureDefinition` differential — or pick one from the
+examples menu, which is populated from `examples/manifest.yaml` (override with
+a `?manifestURL=…` query parameter). The page shows the extracted slices, the
+state machine, and the generated ShExC.
 
 `slicer.js` is dependency-free and also loads in node:
 

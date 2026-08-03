@@ -1,0 +1,122 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "bp-simplified",
+  "url": "http://example.org/fhir/StructureDefinition/bp-simplified",
+  "name": "BloodPressure",
+  "status": "active",
+  "description": "Simplified from the HL7 blood pressure profile (http://hl7.org/fhir/StructureDefinition/bp): Observation.component is sliced by pattern on code into one systolic and one diastolic component.",
+  "kind": "resource",
+  "type": "Observation",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/vitalsigns",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Observation",
+        "path": "Observation"
+      },
+      {
+        "id": "Observation.status",
+        "path": "Observation.status",
+        "min": 1,
+        "max": "1"
+      },
+      {
+        "id": "Observation.code",
+        "path": "Observation.code",
+        "min": 1,
+        "max": "1",
+        "patternCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "85354-9",
+              "display": "Blood pressure panel with all children optional"
+            }
+          ]
+        }
+      },
+      {
+        "id": "Observation.component",
+        "path": "Observation.component",
+        "min": 2,
+        "slicing": {
+          "discriminator": [
+            {
+              "type": "pattern",
+              "path": "code"
+            }
+          ],
+          "ordered": false,
+          "rules": "open"
+        }
+      },
+      {
+        "id": "Observation.component:MeanArterialBP",
+        "path": "Observation.component",
+        "sliceName": "MeanArterialBP",
+        "min": 1,
+        "max": "1"
+      },
+      {
+        "id": "Observation.component:MeanArterialBP.code",
+        "path": "Observation.component.code",
+        "min": 1,
+        "max": "1",
+        "patternCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "8480-75996-9",
+              "display": "Mean arterial blood pressure continuous non-invasive"
+            }
+          ]
+        }
+      },
+      {
+        "id": "Observation.component:SystolicBP",
+        "path": "Observation.component",
+        "sliceName": "SystolicBP",
+        "min": 1,
+        "max": "1"
+      },
+      {
+        "id": "Observation.component:SystolicBP.code",
+        "path": "Observation.component.code",
+        "min": 1,
+        "max": "1",
+        "patternCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "8480-6",
+              "display": "Systolic blood pressure"
+            }
+          ]
+        }
+      },
+      {
+        "id": "Observation.component:DiastolicBP",
+        "path": "Observation.component",
+        "sliceName": "DiastolicBP",
+        "min": 1,
+        "max": "1"
+      },
+      {
+        "id": "Observation.component:DiastolicBP.code",
+        "path": "Observation.component.code",
+        "min": 1,
+        "max": "1",
+        "patternCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "8462-4",
+              "display": "Diastolic blood pressure"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
