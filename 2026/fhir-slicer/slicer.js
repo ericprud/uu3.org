@@ -167,12 +167,16 @@
       const universal = open && nilOk
         && alts.every(a => a.next === k)
         && slices.every((s, i) => c[i] < s.max);
-      states.set(k, { key: k, counts: c, nilOk, alts, universal });
+      // A state with no alternatives (closed slicing, every slice used up)
+      // must end: inlined as the value rdf:nil instead of a named shape.
+      const terminal = nilOk && alts.length === 0;
+      states.set(k, { key: k, counts: c, nilOk, alts, universal, terminal });
     }
     return states;
   }
 
   function stateShapeName(base, st, slices) {
+    if (st.terminal) return null;
     if (st.universal) return 'AnyList';
     const parts = st.counts.map((c, i) => {
       const s = slices[i];
@@ -186,6 +190,7 @@
 
   /** Human-readable summary of a state, for diagrams/UI. */
   function stateLabel(st, slices) {
+    if (st.terminal) return 'list must end';
     if (st.universal) return 'anything more';
     const needs = [], noMore = [];
     st.counts.forEach((c, i) => {
@@ -203,11 +208,14 @@
     let usesAny = false;
     for (const st of states.values()) {
       if (st.universal) { usesAny = true; continue; }
+      if (st.terminal) continue;
       const name = names.get(st.key);
       const altTexts = st.alts.map(a => {
         const nextSt = states.get(a.next);
         if (nextSt.universal) usesAny = true;
-        const restRef = nextSt.universal ? '@<#AnyList>' : '@<#' + names.get(a.next) + '>';
+        const restRef = nextSt.terminal ? '[rdf:nil]'
+          : nextSt.universal ? '@<#AnyList>'
+          : '@<#' + names.get(a.next) + '>';
         if (a.slice === null) {
           const nots = liRefs.map(r => 'NOT @' + r).join(' AND ');
           return 'fhir:first ' + nots + ' ; fhir:rest ' + restRef;
@@ -311,9 +319,10 @@
       if (rm.usesAny) buckets.usesAny = true;
 
       const startKey = machine.keys().next().value;
-      const startName = rm.names.get(startKey);
+      const startRef = machine.get(startKey).terminal
+        ? '[rdf:nil]' : '@<#' + rm.names.get(startKey) + '>';
       if (sl.path.split('.').length === 2)
-        rootTCs.push('fhir:' + sl.property + ' @<#' + startName + '>');
+        rootTCs.push('fhir:' + sl.property + ' ' + startRef);
 
       machines.push({
         path: sl.path,
@@ -328,6 +337,7 @@
           counts: st.counts,
           nilOk: st.nilOk,
           universal: st.universal,
+          terminal: st.terminal,
           alts: st.alts,
           name: rm.names.get(st.key),
           label: stateLabel(st, sl.slices),

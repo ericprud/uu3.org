@@ -1,7 +1,7 @@
 menu:
-  - name: systolic/diastolic
+  - name: systolic/diastolic open
     profileURL: BP-systolic-diastolic.json
-  - name: meanArterial/systolic/diastolic
-    profileURL: BP-systolic-diastolic-meanArterial.json
   - name: systolic/diastolic, closed
     profileURL: BP-systolic-diastolic-closed.json
+  - name: meanArterial/systolic/diastolic
+    profileURL: BP-systolic-diastolic-meanArterial.json

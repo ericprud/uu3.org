@@ -204,15 +204,18 @@
 <section id="sec-machine" class="hidden">
   <h2>The list as a state machine</h2>
   <p class="sub">Each state remembers what the list still owes. Colored arrows consume a member matching
-  that slice’s discriminator; the gray loop consumes a member matching none (allowed because the slicing
-  is open). Green states may end in <code>rdf:nil</code>. Click a state to jump to its shape.</p>
+  that slice’s discriminator; a dashed gray loop (open slicing only) consumes a member matching none.
+  Green states may end in <code>rdf:nil</code>; a state that <em>must</em> end is drawn as
+  <code>rdf:nil</code> itself. Click a state to jump to its shape.</p>
   <div id="diagram-out"></div>
 </section>
 
 <section id="sec-shex" class="hidden">
   <h2>ShEx out</h2>
   <p class="sub">One shape per state; each <code>fhir:rest</code> points at the successor state’s shape.
-  <code>[rdf:nil] OR …</code> marks the accepting states.</p>
+  <code>[rdf:nil] OR …</code> marks the accepting states. A state that <em>must</em> end (closed
+  slicing, every slice used up) gets no shape at all — referring alternatives just say
+  <code>fhir:rest [rdf:nil]</code>.</p>
   <div class="dark-panel">
     <button id="btn-copy" class="copy-btn" aria-label="Copy generated ShEx">Copy</button>
     <pre class="shex"><code id="shex-out"></code></pre>
@@ -368,7 +371,12 @@
       const colH = col.length * H + (col.length - 1) * RG;
       const y0 = PADY + (maxRows * H + (maxRows - 1) * RG - colH) / 2;
       col.forEach((st, ri) => {
-        pos[st.key] = { x: PADX + 46 + li * (W + CG), y: y0 + ri * (H + RG), st };
+        const nw = st.terminal ? 100 : W, nh = st.terminal ? 42 : H;
+        pos[st.key] = {
+          x: PADX + 46 + li * (W + CG) + (W - nw) / 2,
+          y: y0 + ri * (H + RG) + (H - nh) / 2,
+          w: nw, h: nh, st,
+        };
       });
     });
 
@@ -391,15 +399,15 @@
         if (a.next === st.key) {
           const n = loopCount[st.key] = (loopCount[st.key] || 0) + 1;
           const lift = 26 + (n - 1) * 20;
-          const x1 = p.x + W * 0.62, x2 = p.x + W * 0.38;
+          const x1 = p.x + p.w * 0.62, x2 = p.x + p.w * 0.38;
           edges += `<path d="M ${x1} ${p.y} C ${x1 + 26} ${p.y - lift}, ${x2 - 26} ${p.y - lift}, ${x2} ${p.y}"
                       fill="none" stroke="${color}" stroke-width="1.5"
                       ${a.slice === null ? 'stroke-dasharray="4 3"' : ''} marker-end="url(#arr${mk})"/>
-                    <text x="${p.x + W / 2}" y="${p.y - lift + 6}" text-anchor="middle"
+                    <text x="${p.x + p.w / 2}" y="${p.y - lift + 6}" text-anchor="middle"
                       font-size="10.5" font-family="ui-monospace,Menlo,monospace" fill="${color}">${esc(label)}</text>`;
         } else {
           const q = pos[a.next];
-          const sx = p.x + W, sy = p.y + H / 2, tx = q.x, ty = q.y + H / 2;
+          const sx = p.x + p.w, sy = p.y + p.h / 2, tx = q.x, ty = q.y + q.h / 2;
           edges += `<path d="M ${sx} ${sy} C ${sx + CG * 0.55} ${sy}, ${tx - CG * 0.55} ${ty}, ${tx} ${ty}"
                       fill="none" stroke="${color}" stroke-width="1.7" marker-end="url(#arr${mk})"/>
                     <text x="${(sx + tx) / 2}" y="${(sy + ty) / 2 - 7}" text-anchor="middle"
@@ -409,24 +417,35 @@
     }
     for (const st of m.states) {
       const p = pos[st.key];
+      if (st.terminal) {
+        // no shape to point at: the list simply ends here
+        nodes += `<g role="img" aria-label="rdf:nil — the list must end here">
+          <rect x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" rx="${p.h / 2}"
+            fill="#1b2432" stroke="${GREEN}" stroke-width="1.6"/>
+          <rect x="${p.x + 3}" y="${p.y + 3}" width="${p.w - 6}" height="${p.h - 6}" rx="${(p.h - 6) / 2}"
+            fill="none" stroke="${GREEN}" stroke-width="1"/>
+          <text x="${p.x + p.w / 2}" y="${p.y + p.h / 2 + 4}" text-anchor="middle" font-size="12"
+            font-family="ui-monospace,Menlo,monospace" fill="${GREEN}">rdf:nil</text></g>`;
+        continue;
+      }
       const stroke = st.nilOk ? GREEN : '#425062';
       const ring = st.nilOk
-        ? `<rect x="${p.x + 3}" y="${p.y + 3}" width="${W - 6}" height="${H - 6}" rx="8"
+        ? `<rect x="${p.x + 3}" y="${p.y + 3}" width="${p.w - 6}" height="${p.h - 6}" rx="8"
              fill="none" stroke="${GREEN}" stroke-width="1"/>` : '';
       const label = st.nilOk && st.label.indexOf('may end') === -1 ? st.label + ' — may end' : st.label;
       nodes += `<g class="node" tabindex="0" role="button" data-decl="${cssId(st.name)}"
                   aria-label="state ${esc(st.label)}">
-        <rect class="node-box" x="${p.x}" y="${p.y}" width="${W}" height="${H}" rx="10"
+        <rect class="node-box" x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" rx="10"
           fill="#1b2432" stroke="${stroke}" stroke-width="1.6"/>${ring}
-        <text x="${p.x + W / 2}" y="${p.y + 27}" text-anchor="middle" font-size="10"
+        <text x="${p.x + p.w / 2}" y="${p.y + 27}" text-anchor="middle" font-size="10"
           font-family="ui-monospace,Menlo,monospace" fill="#e3d9c2">${esc('<#' + st.name + '>')}</text>
-        <text x="${p.x + W / 2}" y="${p.y + 46}" text-anchor="middle" font-size="12"
+        <text x="${p.x + p.w / 2}" y="${p.y + 46}" text-anchor="middle" font-size="12"
           fill="${st.nilOk ? GREEN : '#c7d3e2'}">${esc(label)}</text></g>`;
     }
     const start = pos[m.startKey];
-    const startArrow = `<path d="M ${start.x - 40} ${start.y + H / 2} H ${start.x - 4}"
+    const startArrow = `<path d="M ${start.x - 40} ${start.y + start.h / 2} H ${start.x - 4}"
         stroke="#c7d3e2" stroke-width="1.7" fill="none" marker-end="url(#arr${m.slices.length})"/>
-      <text x="${start.x - 42} " y="${start.y + H / 2 - 8}" font-size="10.5"
+      <text x="${start.x - 42} " y="${start.y + start.h / 2 - 8}" font-size="10.5"
         font-family="ui-monospace,Menlo,monospace" fill="#c7d3e2">start</text>`;
 
     return `<div class="dark-panel diagram-scroll"><svg width="${width}" height="${height}"

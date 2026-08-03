@@ -34,11 +34,19 @@ assert.equal(m.states.length, 4);
 assert.equal(m.states.filter(s => s.nilOk).length, 1);
 assert.equal(m.startKey, '0,0');
 
-// Closed slicing: no NOT alternative, exhausted state is bare [rdf:nil]
+// Closed slicing: no NOT alternative; the exhausted state is terminal and is
+// inlined as the value rdf:nil instead of getting a shape of its own
 const closed = buildMachine([{ name: 'A', min: 1, max: 1 }], 'closed');
 assert.equal(closed.get('0').alts.length, 1);
 assert.equal(closed.get('1').alts.length, 0);
-assert(closed.get('1').nilOk);
+assert(closed.get('1').terminal);
+const closedSd = JSON.parse(require('fs').readFileSync(__dirname + '/examples/BP-systolic-diastolic-closed.json', 'utf8'));
+const closedResult = generate(closedSd);
+assert(!closedResult.text.includes('component_no_SystolicBP_no_DiastolicBP'),
+  'terminal state should not be emitted as a shape');
+assert(closedResult.text.includes('fhir:rest [rdf:nil]'),
+  'references to the terminal state should be inlined as rdf:nil');
+assert.equal(closedResult.machines[0].states.filter(s => s.terminal).length, 1);
 
 // Unbounded slice (min 1, max *) collapses its satisfied state into AnyList
 const open = buildMachine([{ name: 'A', min: 1, max: Infinity }], 'open');
